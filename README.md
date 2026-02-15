@@ -1,50 +1,155 @@
-# Welcome to your Expo app 👋
+# App Inspeção de Segurança CEMT 👷‍♂️📱
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Versão:** 1.1.0  •  **Status:** Em desenvolvimento (Fase 3 - Core Features)
 
-## Get started
+**Última atualização:** 15/02/2026
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## Sumário
 
-2. Start the app
+- [Visão Geral](#visão-geral)
+- [Stack Tecnológica](#stack-tecnológica)
+- [Instalação](#instalação)
+- [Arquitetura do Projeto](#arquitetura-do-projeto)
+- [Fluxo e Funcionalidades](#fluxo-e-funcionalidades)
+- [Modelo de Dados](#modelo-de-dados)
+- [Design System](#design-system)
+- [Contatos](#contatos)
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## Visão Geral
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+O App CEMT é uma aplicação mobile offline-first para inspeções de segurança do trabalho em canteiros. Substitui pranchetas, reduz retrabalho e permite registrar conformidades, evidenciar riscos com fotos e gerar relatórios diretamente no celular.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Principais diferenciais:
 
-## Get a fresh project
+- **Acesso imediato:** fluxo sem login para agilidade em campo.
+- **Foco na tarefa:** interface limpa, priorizando coleta de dados.
+- **Offline-ready:** suporte a operação sem internet (mock data local hoje).
 
-When you're ready, run:
+## Stack Tecnológica 🛠️
+
+Escolha pensada para velocidade de desenvolvimento e manutenção.
+
+| Categoria | Tecnologia | Justificativa |
+|---|---|---|
+| Framework | React Native (Expo SDK 52+) | Desenvolvimento híbrido rápido e acesso a APIs nativas |
+| Linguagem | TypeScript | Tipagem, intellisense e menos bugs em runtime |
+| Roteamento | Expo Router | File-based routing, similar ao Next.js |
+| Estilização | StyleSheet nativo | Performance sem dependências pesadas |
+| Ícones | @expo/vector-icons | Biblioteca leve e completa |
+| Backend (simulado) | Mock Data local | Validação rápida de UI/UX antes da integração |
+
+## Instalação ⚙️
+
+Pré-requisitos:
+
+- Node.js (LTS)
+- Android Studio (SDK + emulador) ou dispositivo com Expo Go
+
+Passos rápidos:
 
 ```bash
-npm run reset-project
+git clone https://github.com/DanMedeiroz/App_Inspecao_Tecnica_CEMT.git
+cd App_Inspecao_Tecnica_CEMT
+npm install
+# se houver problemas: npx expo install --fix
+
+# rodar no emulador Android
+npm run android
+
+# rodar via Expo (QR Code)
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Arquitetura do Projeto 🏗️
 
-## Learn more
+Separação clara entre rotas (`app/`) e lógica/UI (`src/`).
 
-To learn more about developing your project with Expo, look at the following resources:
+Estrutura (resumida):
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```
+/
+├── app/                      # Rotas (Expo Router)
+│   ├── _layout.tsx           # Config. global de navegação
+│   ├── index.tsx             # Entrada (redireciona para obras)
+│   ├── obras/[id]/inspecoes.tsx
+│   └── inspecoes/[id]/pavimentos.tsx
+├── src/                      # Código fonte
+│   ├── assets/               # Imagens estáticas
+│   ├── components/           # Componentes reutilizáveis
+│   ├── constants/            # mockData.ts
+│   ├── screens/              # Telas (obras, inspeções)
+│   └── types/                # Interfaces TypeScript
+```
 
-## Join the community
+## Fluxo e Funcionalidades 📱
 
-Join our community of developers creating universal apps.
+1) Tela inicial — **Lista de Obras** (`/`)
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Visão geral dos canteiros ativos
+- Header com logo CEMT e alertas visuais
+- Acesso direto sem login
+
+2) Lista de Inspeções — **/obras/[id]/inspecoes**
+
+- Histórico filtrado por obra
+- Cards com data/hora
+- Botão **+ Nova Inspeção**
+
+3) Pavimentos — **/inspecoes/[id]/pavimentos**
+
+- Listagem de locais (Térreo, 1º Andar, Cobertura)
+- Ícones de camadas e feedback limpo
+
+## Modelo de Dados (excertos)
+
+As principais interfaces estão em `src/types/index.ts`:
+
+```ts
+export interface Obra {
+  id: string;
+  nome: string;
+  endereco: string;
+  tecnico: string;
+  empresaNome: string;
+  status: 'ativa' | 'pausada' | 'concluida';
+}
+
+export interface Inspecao {
+  id: string;
+  obraId: string;
+  data: string; // ISO 8601
+  tecnico: string;
+  status: 'em-andamento' | 'concluida';
+}
+
+export interface Pavimento {
+  id: string;
+  inspecaoId: string;
+  nome: string;
+  ordem: number;
+}
+```
+
+## Design System 🎨
+
+- **Primary:** #1F5F38 (Verde CEMT)
+- **Danger:** #DC2626
+- **Surface:** #FFFFFF
+- **Background:** #F9FAFB
+
+Tipografia: fontes nativas (San Francisco no iOS, Roboto no Android).
+
+## Contatos e Responsáveis 👥
+
+- Product Owner: Clínica CEMT
+- Tech Lead: Daniel Fernandes Medeiros
+- Designer: Daniel Fernandes Medeiros
+- Especialista em Segurança do Trabalho: Franco Steffen Fernandes
+
+---
+
+Se quiser, eu posso também: atualizar o `package.json` com badges, gerar um `CONTRIBUTING.md` ou criar um badge de build/CI. Deseja que eu faça algum desses próximos passos?
