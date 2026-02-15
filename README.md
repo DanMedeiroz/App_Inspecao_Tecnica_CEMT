@@ -149,7 +149,3 @@ Tipografia: fontes nativas (San Francisco no iOS, Roboto no Android).
 - Tech Lead: Daniel Fernandes Medeiros
 - Designer: Daniel Fernandes Medeiros
 - Especialista em Segurança do Trabalho: Franco Steffen Fernandes
-
----
-
-Se quiser, eu posso também: atualizar o `package.json` com badges, gerar um `CONTRIBUTING.md` ou criar um badge de build/CI. Deseja que eu faça algum desses próximos passos?
