@@ -2,7 +2,7 @@
 
 **Versão:** 1.1.0  •  **Status:** Em desenvolvimento (Fase 3 - Core Features)
 
-**Última atualização:** 15/02/2026
+**Última atualização:** 16/02/2026
 
 ---
 
@@ -149,3 +149,25 @@ Tipografia: fontes nativas (San Francisco no iOS, Roboto no Android).
 - Tech Lead: Daniel Fernandes Medeiros
 - Designer: Daniel Fernandes Medeiros
 - Especialista em Segurança do Trabalho: Franco Steffen Fernandes
+
+## Último commit
+
+- **Hash:** 340fb4d52e04aa3295cf82493427d93e4ad42935
+- **Autor:** Daniel Fernandes Medeiros
+- **Data:** Mon Feb 16 00:43:23 2026 -0300
+- **Mensagem:** feat: Fotos com Data (ItemDetail) e Tela de Documentos Vencendo
+- **Arquivos alterados:**
+  - A app/documentos/vencendo.tsx
+  - A app/itens/[id].tsx
+  - A app/pavimentos/[id]/itens.tsx
+  - A src/components/ItemCard.tsx
+  - M src/constants/mockData.ts
+  - A src/constants/textosPadrao.tsx
+  - A src/screens/documentos/DocumentosVencendoScreen.tsx
+  - M src/screens/inspecoes/PavimentosListScreen.tsx
+  - A src/screens/itens/ItemDetailScreen.tsx
+  - A src/screens/itens/ItensListScreen.tsx
+  - M src/screens/obras/ObrasListScreen.tsx
+  - M src/types/index.ts
+
+_Esta seção foi gerada automaticamente com base no último commit._
