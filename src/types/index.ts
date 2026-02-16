@@ -6,8 +6,11 @@ export interface Obra {
   endereco: string;
   tecnico: string;
   empresaNome: string;
-  empresaCnpj?: string; // Opcional
-  empresaLogo?: string; // Opcional
+  // NOVOS CAMPOS
+  empresaCnpj?: string;
+  empresaTelefone?: string;
+  empresaEmail?: string;
+  empresaLogo?: string; // URI da imagem
   dataInicio: string;
   status: 'ativa' | 'pausada' | 'concluida';
 }
@@ -18,7 +21,9 @@ export interface Inspecao {
   data: string;
   tecnico: string;
   status: 'em-andamento' | 'concluida';
-  observacoes?: string;
+  // NOVOS CAMPOS PARA O RELATÓRIO PDF
+  descricao?: string; // O texto introdutório longo
+  fotoCapa?: string;  // URI da foto de capa
 }
 
 export interface Pavimento {

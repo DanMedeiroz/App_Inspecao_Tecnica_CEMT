@@ -1,8 +1,18 @@
 // src/screens/inspecoes/PavimentosListScreen.tsx
 import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { Href, useLocalSearchParams, useRouter } from 'expo-router';
-import React from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import {
+  Alert,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PavimentoCard } from '../../components/PavimentoCard';
@@ -10,52 +20,126 @@ import { INSPECOES_MOCK, PAVIMENTOS_MOCK } from '../../constants/mockData';
 
 export default function PavimentosListScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams(); // ID da Inspeção
+  const { id } = useLocalSearchParams();
   const inspecaoId = id as string;
 
-  const inspecao = INSPECOES_MOCK.find(i => i.id === inspecaoId);
+  const inspecaoMock = INSPECOES_MOCK.find(i => i.id === inspecaoId);
   const pavimentos = PAVIMENTOS_MOCK.filter(p => p.inspecaoId === inspecaoId);
 
-  // Formatação de data segura
-  const dataFormatada = inspecao ? new Date(inspecao.data).toLocaleDateString('pt-BR') : '';
+  const [descricao, setDescricao] = useState(inspecaoMock?.descricao || '');
+  const [fotoCapa, setFotoCapa] = useState<string | null>(inspecaoMock?.fotoCapa || null);
+  
+  // Função Simplificada: Vai direto para Galeria
+  const pickImageCapa = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.8,
+      allowsEditing: true,
+      aspect: [16, 9],
+    });
+
+    if (!result.canceled) {
+      setFotoCapa(result.assets[0].uri);
+    }
+  };
+
+  const HeaderRelatorio = () => (
+    <View style={styles.reportHeaderContainer}>
+      
+      {/* 1. Foto de Capa (Clique abre Galeria) */}
+      <View style={styles.sectionBlock}>
+        <Text style={styles.sectionTitle}>Capa do Relatório (Opcional)</Text>
+        <TouchableOpacity 
+          style={styles.coverImageContainer} 
+          onPress={pickImageCapa}
+        >
+          {fotoCapa ? (
+            <>
+              <Image source={{ uri: fotoCapa }} style={styles.coverImage} />
+              <View style={styles.editIconBadge}>
+                <MaterialIcons name="edit" size={16} color="#fff" />
+              </View>
+            </>
+          ) : (
+            <View style={styles.placeholderContainer}>
+              <FontAwesome5 name="images" size={24} color="#9ca3af" />
+              <Text style={styles.placeholderText}>Escolher foto da galeria</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
+
+      {/* 2. Descrição Introdutória */}
+      <View style={styles.sectionBlock}>
+        <Text style={styles.sectionTitle}>Introdução do Relatório</Text>
+        <View style={styles.textAreaContainer}>
+          <TextInput
+            style={styles.textArea}
+            multiline
+            value={descricao}
+            onChangeText={setDescricao}
+            placeholder="Digite a introdução do relatório..."
+            scrollEnabled={false}
+          />
+        </View>
+      </View>
+
+      {/* Título da Lista */}
+      <View style={styles.listTitleContainer}>
+        <Text style={styles.listTitle}>LISTA DE PAVIMENTOS / LOCAIS</Text>
+        <View style={styles.line} />
+      </View>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header Verde */}
+      {/* Header Verde com Ícone Vermelho */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <MaterialIcons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Pavimentos</Text>
-        <View style={{ width: 24 }} />
-      </View>
-
-      {/* Info da Inspeção */}
-      <View style={styles.infoBar}>
-        <Text style={styles.infoTitle}>Inspeção {dataFormatada}</Text>
-        <Text style={styles.infoSubtitle}>Selecione um local para inspecionar</Text>
+        <Text style={styles.headerTitle}>Detalhes da Inspeção</Text>
+        
+        {/* Ícone Salvar em VERMELHO (Tom claro para contraste no verde) */}
+        <TouchableOpacity onPress={() => console.log('Salvar alterações')}>
+           <MaterialIcons name="save" size={28} color="#fff" /> 
+        </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
         <FlatList
           data={pavimentos}
           keyExtractor={(item) => item.id}
+          ListHeaderComponent={HeaderRelatorio}
           renderItem={({ item }) => (
             <PavimentoCard 
               pavimento={item} 
               onPress={() => router.push({
-              pathname: "/pavimentos/[id]/itens",
-              params: { id: item.id }
-            } as Href)} 
-          />
+                pathname: "/pavimentos/[id]/itens",
+                params: { id: item.id }
+              } as Href)} 
+            />
           )}
           ListFooterComponent={() => (
-            <TouchableOpacity style={styles.addButton} onPress={() => console.log('Novo Pavimento')}>
-              <FontAwesome5 name="plus" size={14} color="#1F5F38" />
-              <Text style={styles.addButtonText}>Adicionar Pavimento</Text>
-            </TouchableOpacity>
+            <View style={styles.footerContainer}>
+              {/* Botão Adicionar Pavimento VERMELHO */}
+              <TouchableOpacity style={styles.addButton} onPress={() => console.log('Novo Pavimento')}>
+                <FontAwesome5 name="plus" size={14} color="#dc2626" />
+                <Text style={styles.addButtonText}>Adicionar Pavimento</Text>
+              </TouchableOpacity>
+
+              {/* Botão PDF */}
+              <TouchableOpacity 
+                style={styles.pdfButton} 
+                onPress={() => Alert.alert("Em breve", "Geração de PDF na próxima fase.")}
+              >
+                <FontAwesome5 name="file-pdf" size={18} color="#fff" />
+                <Text style={styles.pdfButtonText}>Gerar Relatório PDF</Text>
+              </TouchableOpacity>
+            </View>
           )}
-          contentContainerStyle={{ paddingBottom: 20 }}
+          contentContainerStyle={{ paddingBottom: 40 }}
         />
       </View>
     </SafeAreaView>
@@ -68,18 +152,52 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 16, paddingVertical: 16, backgroundColor: '#1F5F38',
   },
-  headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#fff' },
+  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#fff' },
   backButton: { padding: 4 },
-  infoBar: {
-    backgroundColor: '#fff', padding: 16, borderBottomWidth: 1, borderBottomColor: '#e5e7eb',
+  content: { flex: 1, paddingHorizontal: 16 },
+
+  reportHeaderContainer: { marginTop: 16, marginBottom: 8 },
+  sectionBlock: { marginBottom: 20 },
+  sectionTitle: { fontSize: 14, fontWeight: 'bold', color: '#374151', marginBottom: 8, textTransform: 'uppercase' },
+  
+  // Capa
+  coverImageContainer: {
+    height: 160, borderRadius: 12, overflow: 'hidden', backgroundColor: '#e5e7eb',
+    borderWidth: 1, borderColor: '#d1d5db', borderStyle: 'dashed',
   },
-  infoTitle: { fontSize: 16, fontWeight: 'bold', color: '#111827' },
-  infoSubtitle: { fontSize: 14, color: '#6b7280', marginTop: 2 },
-  content: { flex: 1, padding: 16 },
+  coverImage: { width: '100%', height: '100%', resizeMode: 'cover' },
+  placeholderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 8 },
+  placeholderText: { fontSize: 14, color: '#6b7280' },
+  editIconBadge: {
+    position: 'absolute', bottom: 8, right: 8, backgroundColor: 'rgba(0,0,0,0.6)',
+    padding: 6, borderRadius: 20,
+  },
+
+  textAreaContainer: {
+    backgroundColor: '#fff', borderRadius: 8, borderWidth: 1, borderColor: '#d1d5db', padding: 12,
+  },
+  textArea: {
+    fontSize: 14, color: '#374151', lineHeight: 20, minHeight: 100, textAlignVertical: 'top',
+  },
+
+  listTitleContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, marginTop: 8 },
+  listTitle: { fontSize: 12, fontWeight: 'bold', color: '#6b7280', marginRight: 8 },
+  line: { flex: 1, height: 1, backgroundColor: '#e5e7eb' },
+
+  footerContainer: { marginTop: 8, gap: 12 },
+  
+  // Botão Adicionar (Estilo Vermelho)
   addButton: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    padding: 16, marginTop: 8, gap: 8, backgroundColor: '#f0fdf4',
-    borderWidth: 1, borderColor: '#bbf7d0', borderRadius: 12, borderStyle: 'dashed'
+    padding: 16, backgroundColor: '#fef2f2', // Fundo vermelho bem claro
+    borderWidth: 1, borderColor: '#fca5a5', borderRadius: 12, borderStyle: 'dashed'
   },
-  addButtonText: { fontSize: 14, fontWeight: '600', color: '#166534' },
+  addButtonText: { fontSize: 14, fontWeight: '600', color: '#dc2626', marginLeft: 8 },
+  
+  pdfButton: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    padding: 16, backgroundColor: '#1F5F38', borderRadius: 12,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 3, elevation: 4,
+  },
+  pdfButtonText: { fontSize: 16, fontWeight: 'bold', color: '#fff', marginLeft: 8 },
 });

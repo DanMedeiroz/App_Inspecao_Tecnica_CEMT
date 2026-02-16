@@ -61,7 +61,10 @@ export default function ObrasListScreen() {
               pathname: "/obras/[id]/inspecoes", // O caminho exato do arquivo na pasta app
               params: { id: item.id } // O valor que substitui o [id]
             })}
-              onPressDocumentosObra={() => console.log(`Abrir funcionários da obra ${item.id}`)}
+              onPressDocumentosObra={() => router.push({
+                pathname: "/obras/[id]/documentos",
+                params: { id: item.id }
+              } as any)}
             />
           )}
         />

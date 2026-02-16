@@ -7,6 +7,10 @@ export const OBRAS_MOCK: Obra[] = [
     endereco: "Av. Paulista, 1000 - São Paulo/SP",
     tecnico: "João Silva",
     empresaNome: "Construtora Santos",
+    empresaCnpj: "12.345.678/0001-90",
+    empresaTelefone: "(11) 99999-8888",
+    empresaEmail: "contato@santos.com.br",
+    empresaLogo: undefined, // Começa sem logo
     dataInicio: "2024-01-01",
     status: "ativa",
   },
@@ -17,6 +21,10 @@ export const OBRAS_MOCK: Obra[] = [
     tecnico: "Maria Santos",
     empresaNome: "Jardim Empreendimentos",
     dataInicio: "2024-02-01",
+    empresaCnpj: "12.345.678/0001-90",
+    empresaTelefone: "(11) 99999-8888",
+    empresaEmail: "contato@santos.com.br",
+    empresaLogo: undefined, // Começa sem logo
     status: "ativa",
   },
   {
@@ -26,6 +34,10 @@ export const OBRAS_MOCK: Obra[] = [
     tecnico: "Carlos Oliveira",
     empresaNome: "Norte Shopping",
     dataInicio: "2024-03-01",
+    empresaCnpj: "12.345.678/0001-90",
+    empresaTelefone: "(11) 99999-8888",
+    empresaEmail: "contato@santos.com.br",
+    empresaLogo: undefined, // Começa sem logo
     status: "ativa",
   },
 ];
@@ -36,6 +48,8 @@ export const DOCUMENTOS_VENCENDO_MOCK: Record<string, number> = {
   "3": 0,
 };
 
+export const TEXTO_PADRAO_RELATORIO = `Foi realizada a inspeção na obra com o objetivo de avaliar as condições de segurança e a conformidade da execução com o projeto e as normas de segurança do trabalho vigentes. Destacamos a importância de cumprir rigorosamente os procedimentos de segurança, utilizar os equipamentos de proteção individual (EPIs) adequados e realizar os treinamentos obrigatórios, especialmente para atividades em altura, conforme previsto nas normas internas da obra e nas boas práticas de segurança ocupacional. O descumprimento dessas medidas pode acarretar acidentes graves, comprometendo a integridade física e a vida dos trabalhadores. Por isso, reiteramos a necessidade de engajamento de todos os envolvidos para assegurar um ambiente de trabalho seguro e saudável. Em caso de dúvidas ou necessidade de orientações adicionais, a equipe de segurança do trabalho está à disposição para suporte. Durante a inspeção, foram identificadas algumas irregularidades, detalhadas a seguir.`;
+
 export const INSPECOES_MOCK: Inspecao[] = [
   {
     id: "101",
@@ -43,21 +57,8 @@ export const INSPECOES_MOCK: Inspecao[] = [
     data: "2026-02-09T08:30:00.000Z", 
     tecnico: "Pedro Almeida",
     status: "em-andamento",
-    observacoes: "Início da verificação estrutural",
-  },
-  {
-    id: "102",
-    obraId: "1",
-    data: "2026-02-02T14:45:00.000Z",
-    tecnico: "Ana Costa",
-    status: "concluida",
-  },
-  {
-    id: "201",
-    obraId: "2",
-    data: "2026-01-20T10:00:00.000Z",
-    tecnico: "Maria Santos",
-    status: "concluida",
+    descricao: TEXTO_PADRAO_RELATORIO, // Já vem preenchido
+    fotoCapa: undefined, // Começa sem foto
   },
 ];
 
