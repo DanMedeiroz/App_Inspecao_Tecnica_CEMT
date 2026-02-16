@@ -2,9 +2,8 @@
 import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Href, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react'; // Adicionado useMemo
 import {
-  Alert,
   FlatList,
   Image,
   StyleSheet,
@@ -14,6 +13,7 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { generateInspecaoPDF } from '../../services/pdfGenerator';
 
 import { PavimentoCard } from '../../components/PavimentoCard';
 import { INSPECOES_MOCK, PAVIMENTOS_MOCK } from '../../constants/mockData';
@@ -29,7 +29,6 @@ export default function PavimentosListScreen() {
   const [descricao, setDescricao] = useState(inspecaoMock?.descricao || '');
   const [fotoCapa, setFotoCapa] = useState<string | null>(inspecaoMock?.fotoCapa || null);
   
-  // Função Simplificada: Vai direto para Galeria
   const pickImageCapa = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -43,67 +42,69 @@ export default function PavimentosListScreen() {
     }
   };
 
-  const HeaderRelatorio = () => (
-    <View style={styles.reportHeaderContainer}>
-      
-      {/* 1. Foto de Capa (Clique abre Galeria) */}
-      <View style={styles.sectionBlock}>
-        <Text style={styles.sectionTitle}>Capa do Relatório (Opcional)</Text>
-        <TouchableOpacity 
-          style={styles.coverImageContainer} 
-          onPress={pickImageCapa}
-        >
-          {fotoCapa ? (
-            <>
-              <Image source={{ uri: fotoCapa }} style={styles.coverImage} />
-              <View style={styles.editIconBadge}>
-                <MaterialIcons name="edit" size={16} color="#fff" />
+  // Mover o Header para um useMemo ou componente externo resolve o problema do foco
+  const HeaderComponent = useMemo(() => {
+    return (
+      <View style={styles.reportHeaderContainer}>
+        
+        {/* 1. Foto de Capa */}
+        <View style={styles.sectionBlock}>
+          <Text style={styles.sectionTitle}>Capa do Relatório (Opcional)</Text>
+          <TouchableOpacity 
+            style={styles.coverImageContainer} 
+            onPress={pickImageCapa}
+          >
+            {fotoCapa ? (
+              <>
+                <Image source={{ uri: fotoCapa }} style={styles.coverImage} />
+                <View style={styles.editIconBadge}>
+                  <MaterialIcons name="edit" size={16} color="#fff" />
+                </View>
+              </>
+            ) : (
+              <View style={styles.placeholderContainer}>
+                <FontAwesome5 name="images" size={24} color="#9ca3af" />
+                <Text style={styles.placeholderText}>Escolher foto da galeria</Text>
               </View>
-            </>
-          ) : (
-            <View style={styles.placeholderContainer}>
-              <FontAwesome5 name="images" size={24} color="#9ca3af" />
-              <Text style={styles.placeholderText}>Escolher foto da galeria</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      </View>
+            )}
+          </TouchableOpacity>
+        </View>
 
-      {/* 2. Descrição Introdutória */}
-      <View style={styles.sectionBlock}>
-        <Text style={styles.sectionTitle}>Introdução do Relatório</Text>
-        <View style={styles.textAreaContainer}>
-          <TextInput
-            style={styles.textArea}
-            multiline
-            value={descricao}
-            onChangeText={setDescricao}
-            placeholder="Digite a introdução do relatório..."
-            scrollEnabled={false}
-          />
+        {/* 2. Descrição Introdutória */}
+        <View style={styles.sectionBlock}>
+          <Text style={styles.sectionTitle}>Introdução do Relatório</Text>
+          <View style={styles.textAreaContainer}>
+            <TextInput
+              style={styles.textArea}
+              multiline
+              // O segredo é passar o value e onChangeText direto do estado pai
+              value={descricao}
+              onChangeText={setDescricao}
+              placeholder="Digite a introdução do relatório..."
+              scrollEnabled={false}
+            />
+          </View>
+        </View>
+
+        {/* Título da Lista */}
+        <View style={styles.listTitleContainer}>
+          <Text style={styles.listTitle}>LISTA DE PAVIMENTOS / LOCAIS</Text>
+          <View style={styles.line} />
         </View>
       </View>
-
-      {/* Título da Lista */}
-      <View style={styles.listTitleContainer}>
-        <Text style={styles.listTitle}>LISTA DE PAVIMENTOS / LOCAIS</Text>
-        <View style={styles.line} />
-      </View>
-    </View>
-  );
+    );
+  }, [descricao, fotoCapa]); // Só recria se descrição ou foto mudarem
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header Verde com Ícone Vermelho */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <MaterialIcons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Detalhes da Inspeção</Text>
         
-        {/* Ícone Salvar em VERMELHO (Tom claro para contraste no verde) */}
-        <TouchableOpacity onPress={() => console.log('Salvar alterações')}>
-           <MaterialIcons name="save" size={28} color="#fff" /> 
+        <TouchableOpacity onPress={() => console.log('Salvar alterações', { descricao, fotoCapa })}>
+            <MaterialIcons name="save" size={28} color="#fff" /> 
         </TouchableOpacity>
       </View>
 
@@ -111,7 +112,8 @@ export default function PavimentosListScreen() {
         <FlatList
           data={pavimentos}
           keyExtractor={(item) => item.id}
-          ListHeaderComponent={HeaderRelatorio}
+          // Passamos o componente já renderizado pelo useMemo
+          ListHeaderComponent={HeaderComponent}
           renderItem={({ item }) => (
             <PavimentoCard 
               pavimento={item} 
@@ -123,16 +125,14 @@ export default function PavimentosListScreen() {
           )}
           ListFooterComponent={() => (
             <View style={styles.footerContainer}>
-              {/* Botão Adicionar Pavimento VERMELHO */}
               <TouchableOpacity style={styles.addButton} onPress={() => console.log('Novo Pavimento')}>
                 <FontAwesome5 name="plus" size={14} color="#dc2626" />
                 <Text style={styles.addButtonText}>Adicionar Pavimento</Text>
               </TouchableOpacity>
 
-              {/* Botão PDF */}
               <TouchableOpacity 
                 style={styles.pdfButton} 
-                onPress={() => Alert.alert("Em breve", "Geração de PDF na próxima fase.")}
+                onPress={() => generateInspecaoPDF(inspecaoId)}
               >
                 <FontAwesome5 name="file-pdf" size={18} color="#fff" />
                 <Text style={styles.pdfButtonText}>Gerar Relatório PDF</Text>
@@ -140,6 +140,9 @@ export default function PavimentosListScreen() {
             </View>
           )}
           contentContainerStyle={{ paddingBottom: 40 }}
+          // Importante: removeClippedSubviews={false} ajuda em alguns casos de input no Android
+          removeClippedSubviews={false}
+          keyboardShouldPersistTaps="handled"
         />
       </View>
     </SafeAreaView>
@@ -160,7 +163,6 @@ const styles = StyleSheet.create({
   sectionBlock: { marginBottom: 20 },
   sectionTitle: { fontSize: 14, fontWeight: 'bold', color: '#374151', marginBottom: 8, textTransform: 'uppercase' },
   
-  // Capa
   coverImageContainer: {
     height: 160, borderRadius: 12, overflow: 'hidden', backgroundColor: '#e5e7eb',
     borderWidth: 1, borderColor: '#d1d5db', borderStyle: 'dashed',
@@ -186,10 +188,9 @@ const styles = StyleSheet.create({
 
   footerContainer: { marginTop: 8, gap: 12 },
   
-  // Botão Adicionar (Estilo Vermelho)
   addButton: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    padding: 16, backgroundColor: '#fef2f2', // Fundo vermelho bem claro
+    padding: 16, backgroundColor: '#fef2f2', 
     borderWidth: 1, borderColor: '#fca5a5', borderRadius: 12, borderStyle: 'dashed'
   },
   addButtonText: { fontSize: 14, fontWeight: '600', color: '#dc2626', marginLeft: 8 },

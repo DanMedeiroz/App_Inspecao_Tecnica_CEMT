@@ -10,7 +10,7 @@ export const OBRAS_MOCK: Obra[] = [
     empresaCnpj: "12.345.678/0001-90",
     empresaTelefone: "(11) 99999-8888",
     empresaEmail: "contato@santos.com.br",
-    empresaLogo: undefined, // Começa sem logo
+    empresaLogo: "https://www.clinicacostaesmeralda.com.br/layouts/clinicacostaesmeralda/assets/images/logo.png", // Começa sem logo
     dataInicio: "2024-01-01",
     status: "ativa",
   },
