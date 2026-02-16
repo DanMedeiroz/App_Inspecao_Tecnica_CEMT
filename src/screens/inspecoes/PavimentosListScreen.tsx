@@ -1,6 +1,6 @@
 // src/screens/inspecoes/PavimentosListScreen.tsx
 import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Href, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -43,8 +43,11 @@ export default function PavimentosListScreen() {
           renderItem={({ item }) => (
             <PavimentoCard 
               pavimento={item} 
-              onPress={() => console.log('Ir para itens do pavimento ' + item.id)} 
-            />
+              onPress={() => router.push({
+              pathname: "/pavimentos/[id]/itens",
+              params: { id: item.id }
+            } as Href)} 
+          />
           )}
           ListFooterComponent={() => (
             <TouchableOpacity style={styles.addButton} onPress={() => console.log('Novo Pavimento')}>

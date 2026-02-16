@@ -33,7 +33,7 @@ export default function ObrasListScreen() {
         {totalAlertas > 0 && (
           <TouchableOpacity 
             style={styles.alertCard}
-            onPress={() => console.log('Navegar para Documentos Vencendo')}
+            onPress={() => router.push("/documentos/vencendo" as any)}
           >
             <View style={styles.alertIconBg}>
               <MaterialIcons name="warning" size={24} color="#dc2626" />
