@@ -20,19 +20,19 @@ export function ItemCard({ item, onPress }: ItemCardProps) {
         <View style={styles.contentContainer}>
           <View style={styles.headerRow}>
             <Text style={styles.title}>
-              {item.tituloInconformidade}
+              {item.nome}
             </Text>
           </View>
 
           {/* Preview do Artigo */}
-          {!!item.artigosNorma && (
+          {!!item.descricao && (
             <Text style={styles.articlePreview} numberOfLines={2}>
-              {item.artigosNorma}
+              {item.descricao}
             </Text>
           )}
 
           {/* Contador de Fotos */}
-          {item.fotos.length > 0 && (
+          {item.fotos && item.fotos.length > 0 && (
             <View style={styles.photoContainer}>
               <FontAwesome5 name="camera" size={12} color="#6b7280" />
               <Text style={styles.photoText}>

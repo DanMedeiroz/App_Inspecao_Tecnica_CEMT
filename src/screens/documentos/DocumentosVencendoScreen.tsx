@@ -24,15 +24,15 @@ export default function DocumentosVencendoScreen() {
     const docs: DocumentoVencendoInfo[] = [];
 
     FUNCIONARIOS_MOCK.forEach((funcionario) => {
-      const obra = OBRAS_MOCK.find(o => o.id === funcionario.obraId);
+      const obra = OBRAS_MOCK.find(o => o.id === funcionario.empresa_id); // Usando empresa_id como fallback para obra no mock
       
       funcionario.documentos.forEach((doc) => {
         if (doc.status === 'vencido' || doc.status === 'vence-30-dias') {
           docs.push({
             funcionarioNome: funcionario.nome,
-            funcionarioCargo: funcionario.cargo,
+            funcionarioCargo: funcionario.cargo_id || 'N/A',
             obraNome: obra?.nome || 'Obra não encontrada',
-            obraId: funcionario.obraId,
+            obraId: funcionario.empresa_id || '1',
             documento: doc
           });
         }
@@ -41,7 +41,7 @@ export default function DocumentosVencendoScreen() {
 
     // Ordenar: Vencidos primeiro, depois os que vão vencer
     return docs.sort((a, b) => {
-      return new Date(a.documento.dataVencimento).getTime() - new Date(b.documento.dataVencimento).getTime();
+      return new Date(a.documento.vence_em).getTime() - new Date(b.documento.vence_em).getTime();
     });
   };
 
@@ -118,7 +118,7 @@ export default function DocumentosVencendoScreen() {
 
             {/* Lista de Cards de Funcionários */}
             {documentos.map((info, index) => {
-              const diffDays = getDaysDiff(info.documento.dataVencimento);
+              const diffDays = getDaysDiff(info.documento.vence_em);
               const isVencido = info.documento.status === 'vencido';
 
               return (
@@ -142,11 +142,11 @@ export default function DocumentosVencendoScreen() {
                   <View style={styles.docBox}>
                     <View style={styles.docInfoRow}>
                       <FontAwesome5 name="file-alt" size={14} color="#4b5563" />
-                      <Text style={styles.docType}>{info.documento.tipo}</Text>
+                      <Text style={styles.docType}>{info.documento.descricao}</Text>
                     </View>
                     
                     <Text style={styles.docDate}>
-                      Vencimento: {formatDate(info.documento.dataVencimento)}
+                      Vencimento: {formatDate(info.documento.vence_em)}
                     </Text>
 
                     {/* Mensagem de Status */}

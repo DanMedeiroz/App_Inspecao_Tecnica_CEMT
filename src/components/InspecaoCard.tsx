@@ -11,7 +11,7 @@ interface InspecaoCardProps {
 
 export function InspecaoCard({ inspecao, onPress }: InspecaoCardProps) {
   // Formatação de Data e Hora
-  const dataObj = new Date(inspecao.data);
+  const dataObj = new Date(inspecao.cadastrado_em);
   const dataFormatada = dataObj.toLocaleDateString('pt-BR');
   const horaFormatada = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
@@ -37,7 +37,7 @@ export function InspecaoCard({ inspecao, onPress }: InspecaoCardProps) {
             </View>
           </View>
 
-          <Text style={styles.subtitle}>Inspetor: {inspecao.tecnico}</Text>
+          <Text style={styles.subtitle}>Inspetor: {inspecao.cadastrado_por || 'Técnico'}</Text>
         </View>
         
         {/* Seta para direita */}

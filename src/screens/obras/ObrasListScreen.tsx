@@ -1,25 +1,38 @@
 // src/screens/obras/ObrasListScreen.tsx
-import React from 'react';
-// ADICIONEI: Image na importação
+import React, { useEffect, useState } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ObraCard } from '../../components/ObraCard';
-import { DOCUMENTOS_VENCENDO_MOCK, OBRAS_MOCK } from '../../constants/mockData';
+import { api } from '../../services/api';
+import { Obra } from '../../types';
 
 export default function ObrasListScreen() {
   const router = useRouter();
-  const totalAlertas = Object.values(DOCUMENTOS_VENCENDO_MOCK).reduce((a, b) => a + b, 0);
+  const [obras, setObras] = useState<Obra[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadObras();
+  }, []);
+
+  const loadObras = async () => {
+    try {
+      const data = await api.getObras();
+      setObras(data);
+    } catch (error) {
+      console.error("Erro ao carregar obras:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header Verde com Logo */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Obras</Text>
-        
-        {/* Container branco arredondado para a logo */}
         <View style={styles.logoContainer}>
           <Image 
             source={require('../../assets/images/icon.png')} 
@@ -29,119 +42,45 @@ export default function ObrasListScreen() {
       </View>
 
       <View style={styles.content}>
-        {/* Card de Alerta Geral */}
-        {totalAlertas > 0 && (
-          <TouchableOpacity 
-            style={styles.alertCard}
-            onPress={() => router.push("/documentos/vencendo" as any)}
-          >
-            <View style={styles.alertIconBg}>
-              <MaterialIcons name="warning" size={24} color="#dc2626" />
-            </View>
-            <View style={styles.alertInfo}>
-              <Text style={styles.alertTitle}>Documentos Vencendo</Text>
-              <Text style={styles.alertSubtitle}>
-                {totalAlertas} documentos requerem atenção
-              </Text>
-            </View>
-            <MaterialIcons name="chevron-right" size={24} color="#991b1b" />
-          </TouchableOpacity>
+        {loading ? (
+          <ActivityIndicator size="large" color="#1F5F38" style={{ marginTop: 40 }} />
+        ) : (
+          <FlatList
+            data={obras}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            renderItem={({ item }) => (
+              <ObraCard 
+                obra={item}
+                docsVencendo={0} // Pode ser carregado via serviço também
+                onPressInspecoes={() => router.push({
+                  pathname: "/obras/[id]/inspecoes",
+                  params: { id: item.id }
+                })}
+                onPressDocumentosObra={() => router.push({
+                  pathname: "/obras/[id]/documentos",
+                  params: { id: item.id }
+                } as any)}
+              />
+            )}
+          />
         )}
-
-        {/* Lista de Obras */}
-        <FlatList
-          data={OBRAS_MOCK}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          renderItem={({ item }) => (
-            <ObraCard 
-              obra={item}
-              docsVencendo={DOCUMENTOS_VENCENDO_MOCK[item.id] || 0}
-              onPressInspecoes={() => router.push({
-              pathname: "/obras/[id]/inspecoes", // O caminho exato do arquivo na pasta app
-              params: { id: item.id } // O valor que substitui o [id]
-            })}
-              onPressDocumentosObra={() => router.push({
-                pathname: "/obras/[id]/documentos",
-                params: { id: item.id }
-              } as any)}
-            />
-          )}
-        />
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f9fafb',
-  },
+  container: { flex: 1, backgroundColor: '#f9fafb' },
   header: {
-    // MUDANÇAS NO HEADER:
-    flexDirection: 'row', // Itens lado a lado
-    justifyContent: 'space-between', // Espaço entre título e logo
-    alignItems: 'center', // Centralizar verticalmente
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#1F5F38', // Verde do seu print
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: 20, paddingVertical: 16, backgroundColor: '#1F5F38',
   },
-  headerTitle: {
-    fontSize: 24, // Aumentei um pouco para destacar
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  // ESTILOS NOVOS DA LOGO:
+  headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
   logoContainer: {
-    backgroundColor: 'white',
-    padding: 6, // Espaço branco em volta da logo
-    borderRadius: 20, // Arredondamento
-    shadowColor: "#000", // Uma sombra leve para destacar do verde
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2.5,
-    elevation: 4,
+    backgroundColor: 'white', padding: 6, borderRadius: 20,
+    shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 2.5, elevation: 4,
   },
-  logoImage: {
-    width: 36, // Tamanho da imagem
-    height: 36,
-    resizeMode: 'contain', // Garante que a logo caiba sem distorcer
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  alertCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fef2f2',
-    borderWidth: 1,
-    borderColor: '#fecaca',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
-  },
-  alertIconBg: {
-    width: 40,
-    height: 40,
-    backgroundColor: '#fee2e2',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  alertInfo: {
-    flex: 1,
-  },
-  alertTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#7f1d1d',
-  },
-  alertSubtitle: {
-    fontSize: 14,
-    color: '#991b1b',
-    marginTop: 2,
-  },
+  logoImage: { width: 36, height: 36, resizeMode: 'contain' },
+  content: { flex: 1, padding: 16 },
 });

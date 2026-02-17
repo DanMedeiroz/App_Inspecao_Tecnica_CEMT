@@ -14,7 +14,7 @@ export default function DocumentosObraScreen() {
   const obraId = id as string;
 
   const obra = OBRAS_MOCK.find(o => o.id === obraId);
-  const funcionarios = FUNCIONARIOS_MOCK.filter(f => f.obraId === obraId);
+  const funcionarios = FUNCIONARIOS_MOCK.filter(f => f.empresa_id === obraId); // Usando empresa_id como fallback no mock
 
   // Filtros e Cálculos
   const getDocumentosVencendo = (funcionario: Funcionario) => {
@@ -105,7 +105,7 @@ export default function DocumentosObraScreen() {
               <View style={styles.cardHeader}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.funcName}>{funcionario.nome}</Text>
-                  <Text style={styles.funcRole}>{funcionario.cargo}</Text>
+                  <Text style={styles.funcRole}>{funcionario.cargo_id || 'N/A'}</Text>
                   {/* CPF fictício para layout */}
                   <Text style={styles.cpfText}>CPF: 000.000.000-00</Text>
                 </View>
@@ -125,7 +125,7 @@ export default function DocumentosObraScreen() {
                 
                 {funcionario.documentos.map((doc) => {
                   const style = getStatusColor(doc.status);
-                  const dias = getDaysDiff(doc.dataVencimento);
+                  const dias = getDaysDiff(doc.vence_em);
 
                   return (
                     <View key={doc.id} style={[styles.docItem, { backgroundColor: style.bg, borderColor: style.border }]}>
@@ -136,8 +136,8 @@ export default function DocumentosObraScreen() {
                         </View>
                         
                         <View style={{ flex: 1 }}>
-                          <Text style={styles.docType}>{doc.tipo}</Text>
-                          <Text style={styles.docDate}>Vencimento: {formatDate(doc.dataVencimento)}</Text>
+                          <Text style={styles.docType}>{doc.descricao}</Text>
+                          <Text style={styles.docDate}>Vencimento: {formatDate(doc.vence_em)}</Text>
                           
                           {/* Mensagem de Dias */}
                           {doc.status === 'vencido' && (
